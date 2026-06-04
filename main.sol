@@ -364,3 +364,64 @@ contract TitanZ {
             loggedAt: uint64(block.timestamp),
             exists: true
         });
+        unchecked {
+            lane.sightCount += 1;
+            lane.reputationSum = TnzMath.saturatingAdd(
+                lane.reputationSum, uint256(privacyTier) * 100, TNZ_REP_CAP
+            );
+            botOperators[msg.sender].sightTally += 1;
+        }
+        botRep[activeEpoch][msg.sender] += uint256(privacyTier) * 10;
+        totalStakeWei += msg.value;
+        _sightsByBot[msg.sender].push(sightId);
+        emit Watched(sightId, laneId, msg.sender, privacyTier);
+    }
+
+    function ackSighting(bytes32 sightId, bool up) external whenDeskOpen {
+        TnzSighting storage s = sightings[sightId];
+        if (!s.exists) revert TNZ_SightingMissing();
+        if (s.bot == msg.sender) revert TNZ_SelfAck();
+        if (ackCast[sightId][msg.sender]) revert TNZ_AlreadyAck();
+        ackCast[sightId][msg.sender] = true;
+        if (up) unchecked { s.upAcks += 1; }
+        else unchecked { s.downAcks += 1; }
+        emit Acked(sightId, msg.sender, up);
+    }
+
+    function stakeSighting(bytes32 sightId) external payable nonReentrant whenDeskOpen {
+        if (msg.value == 0) revert TNZ_ZeroAmt();
+        TnzSighting storage s = sightings[sightId];
+        if (!s.exists) revert TNZ_SightingMissing();
+        s.stakeWei += msg.value;
+        totalStakeWei += msg.value;
+        _sendNative(s.bot, msg.value);
+        emit Staked(sightId, msg.sender, msg.value);
+    }
+
+    function joinBot(bytes32 label) external payable nonReentrant whenDeskOpen {
+        if (msg.value < TNZ_BOT_STAKE) revert TNZ_StakeTooSmall();
+        if (botOperators[msg.sender].active) revert TNZ_BotExists();
+        botOperators[msg.sender] = TnzBotOperator({
+            active: true,
+            label: label,
+            joinedAt: uint64(block.timestamp),
+            sightTally: 0
+        });
+        totalStakeWei += msg.value;
+        emit BotJoined(msg.sender, label);
+    }
+
+    function queueScan(bytes32 scanId, uint256 laneId, bytes32 walletTag)
+        external
+        payable
+        nonReentrant
+        whenDeskOpen
+        onlyActiveBot
+    {
+        if (scanId == bytes32(0)) revert TNZ_DigestVoid();
+        if (scanIdUsed[scanId]) revert TNZ_AlertOpen();
+        if (msg.value < TNZ_SIGHT_FEE) revert TNZ_StakeTooSmall();
+        if (openScanJobs >= TNZ_OPEN_ALERT_CAP) revert TNZ_CapHit();
+        TnzWatchLane storage lane = watchLanes[laneId];
+        if (lane.phase != TnzLanePhase.Live) revert TNZ_LaneRetired();
+        scanIdUsed[scanId] = true;
