@@ -181,3 +181,64 @@ contract TitanZ {
         address relayer;
         uint64 relayAt;
     }
+
+    struct TnzEpochSnapshot {
+        bytes32 rootHash;
+        uint256 sightTotal;
+        uint64 stampedAt;
+        bool exists;
+    }
+
+    uint256 public constant TNZ_PRIVACY_MAX = 8;
+    uint256 public constant TNZ_SIGHT_FEE = 0.004 ether;
+    uint256 public constant TNZ_BOT_STAKE = 0.05 ether;
+    uint256 public constant TNZ_MAX_SIGHTINGS = 143;
+    uint256 public constant TNZ_OPEN_ALERT_CAP = 44;
+    uint256 public constant TNZ_DELTA_FLOOR = 587;
+    uint256 public constant TNZ_DELTA_CEIL = 9130;
+    uint256 public constant TNZ_EPOCH_BLOCKS = 525;
+    uint256 public constant TNZ_REP_CAP = 15024;
+    uint256 public constant TNZ_CONF_FLOOR = 387;
+    uint256 public constant TNZ_CONF_CEIL = 9282;
+    uint256 public constant TNZ_MAX_BOUNTIES = 68;
+    uint256 public constant TNZ_MAX_WATCH_SUBS = 235;
+    uint256 public constant TNZ_MAX_RELAYS = 120;
+    uint256 public constant TNZ_RANK_SCOUT = 595;
+    uint256 public constant TNZ_RANK_HUNTER = 1377;
+    uint256 public constant TNZ_RANK_TITAN = 3211;
+
+    bytes32 private constant _MIX_0 = 0xcda94532c86431835bcb3953efc61163810c47be421e280890f677d1dcb69406;
+    bytes32 private constant _MIX_1 = 0x0c4af312383d0dff1956b262fbb2d10ae7da2ec2be35142a4500d90f93da7c24;
+    bytes32 private constant _MIX_2 = 0x66bb1e82dd1d27a83e3f54d49c9488b3b7fcb2f003c02a2035b201920b8df960;
+    bytes32 private constant _MIX_3 = 0xbf50fb2a4167f3a6844c79e891069c979aaf6678fd2a9d56a4aa6f9d516ce39f;
+    bytes32 private constant _MIX_4 = 0xe698b2891e6c884ef4d28498a4177ecc8852ec84dd6ea026d919ac18a4ecbfad;
+    bytes32 private constant _MIX_5 = 0xd17d3e8c1c64b52340e9fac6560c6f0d6cf855463dad9d704d6685e0e72dd215;
+    bytes32 private constant _MIX_6 = 0xb2abc124ccae6c547f697700780cac7d31a5f9c69a705ec5cc37e56cf6300faf;
+    bytes32 private constant _MIX_7 = 0xa29287fbb5117e25299bcd1bb7fb511f365a9a523a0a085c276985c0882b980e;
+    bytes32 private constant TNZ_DOMAIN = keccak256("TitanZ.obsidianRelayCrawl");
+
+    address public immutable ADDRESS_A;
+    address public immutable ADDRESS_B;
+    address public immutable ADDRESS_C;
+
+    address public sheriff;
+    bool public deskFrozen;
+    uint256 public activeEpoch;
+    uint256 public lineSerial;
+    uint256 public openScanJobs;
+    uint256 public totalStakeWei;
+    uint256 public genesisBlock;
+    uint256 public openBountyCount;
+    uint256 public watchSubCount;
+    uint256 public relayCount;
+    uint256 public bountyPoolWei;
+
+    mapping(uint256 => TnzWatchLane) public watchLanes;
+    mapping(bytes32 => TnzSighting) public sightings;
+    mapping(bytes32 => TnzScanJob) public scanJobs;
+    mapping(bytes32 => TnzAlertCell) public alerts;
+    mapping(uint256 => TnzEpochRail) public epochRails;
+    mapping(uint256 => mapping(address => uint256)) public botRep;
+    mapping(bytes32 => mapping(address => bool)) public ackCast;
+    mapping(bytes32 => bool) public sightIdUsed;
+    mapping(bytes32 => bool) public scanIdUsed;
