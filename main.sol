@@ -59,3 +59,64 @@ contract TitanZ {
     error TNZ_NotBot();
     error TNZ_BotExists();
     error TNZ_BountyMissing();
+    error TNZ_BountyClosed();
+    error TNZ_BountyTaken();
+    error TNZ_SubExists();
+    error TNZ_SubMissing();
+    error TNZ_RelayExists();
+    error TNZ_RankLow();
+    error TNZ_SnapshotSet();
+
+    event Watched(bytes32 indexed sightId, uint256 indexed laneId, address indexed bot, uint8 tier);
+    event Acked(bytes32 indexed sightId, address indexed acker, bool up);
+    event Staked(bytes32 indexed sightId, address indexed from, uint256 weiAmt);
+    event Scanned(bytes32 indexed scanId, uint256 indexed laneId, bytes32 walletTag);
+    event Sealed(bytes32 indexed scanId, bytes32 payloadHash, uint16 confidence);
+    event Alerted(bytes32 indexed alertId, uint256 indexed laneId, uint16 deltaBand);
+    event Opened(uint256 indexed laneId, bytes32 laneTag, uint8 tier);
+    event Rolled(uint256 indexed epochId, uint64 wallTs, uint256 sightWeight);
+    event Frozen(bool deskFrozen, address indexed by);
+    event SheriffShifted(address indexed prev, address indexed next);
+    event BotJoined(address indexed bot, bytes32 label);
+    event BotLeft(address indexed bot);
+    event BountyPosted(bytes32 indexed bountyId, uint256 indexed laneId, uint256 rewardWei);
+    event BountyClaimed(bytes32 indexed bountyId, address indexed bot, uint256 rewardWei);
+    event Subscribed(bytes32 indexed subId, address indexed watcher, bytes32 walletTag);
+    event Unsubscribed(bytes32 indexed subId, address indexed watcher);
+    event Relayed(bytes32 indexed relayId, uint256 fromLane, uint256 toLane, address bot);
+    event RankRaised(address indexed bot, uint8 newRank);
+    event SnapshotSaved(uint256 indexed epochId, bytes32 rootHash, uint256 sightTotal);
+    event Pulse_0(uint256 indexed lineId, address indexed actor, uint256 meta);
+    event Pulse_1(uint256 indexed lineId, address indexed actor, uint256 meta);
+    event Pulse_2(uint256 indexed lineId, address indexed actor, uint256 meta);
+    event Pulse_3(uint256 indexed lineId, address indexed actor, uint256 meta);
+    event Pulse_4(uint256 indexed lineId, address indexed actor, uint256 meta);
+    event Pulse_5(uint256 indexed lineId, address indexed actor, uint256 meta);
+    event Pulse_6(uint256 indexed lineId, address indexed actor, uint256 meta);
+    event Pulse_7(uint256 indexed lineId, address indexed actor, uint256 meta);
+    event Pulse_8(uint256 indexed lineId, address indexed actor, uint256 meta);
+    event Pulse_9(uint256 indexed lineId, address indexed actor, uint256 meta);
+    event Pulse_10(uint256 indexed lineId, address indexed actor, uint256 meta);
+
+    enum TnzLanePhase { Draft, Live, Archived }
+    enum TnzScanPhase { Queued, Running, Done, Failed }
+    enum TnzRank { Scout, Hunter, Titan, Mythic }
+
+    struct TnzWatchLane {
+        TnzLanePhase phase;
+        uint8 privacyTier;
+        uint64 openedAt;
+        uint32 sightCount;
+        uint32 scanCount;
+        uint256 reputationSum;
+        bytes32 laneTag;
+    }
+
+    struct TnzSighting {
+        uint256 laneId;
+        address bot;
+        bytes32 walletFingerprint;
+        uint8 privacyTier;
+        uint32 upAcks;
+        uint32 downAcks;
+        uint256 stakeWei;
