@@ -425,3 +425,64 @@ contract TitanZ {
         TnzWatchLane storage lane = watchLanes[laneId];
         if (lane.phase != TnzLanePhase.Live) revert TNZ_LaneRetired();
         scanIdUsed[scanId] = true;
+        scanJobs[scanId] = TnzScanJob({
+            laneId: laneId,
+            requester: msg.sender,
+            walletTag: walletTag,
+            phase: TnzScanPhase.Queued,
+            resultHash: bytes32(0),
+            confidence: 0,
+            queuedAt: uint64(block.timestamp)
+        });
+        unchecked {
+            openScanJobs += 1;
+            lane.scanCount += 1;
+        }
+        emit Scanned(scanId, laneId, walletTag);
+    }
+
+    function sealScan(bytes32 scanId, bytes32 payloadHash, uint16 confidence) external onlySheriff {
+        TnzScanJob storage j = scanJobs[scanId];
+        if (j.phase != TnzScanPhase.Queued && j.phase != TnzScanPhase.Running) revert TNZ_AlertClosed();
+        if (confidence < TNZ_CONF_FLOOR) revert TNZ_ConfLow();
+        if (confidence > TNZ_CONF_CEIL) revert TNZ_ConfHigh();
+        j.phase = TnzScanPhase.Done;
+        j.resultHash = payloadHash;
+        j.confidence = confidence;
+        if (openScanJobs > 0) unchecked { openScanJobs -= 1; }
+        emit Sealed(scanId, payloadHash, confidence);
+    }
+
+    function publishAlert(
+        bytes32 alertId,
+        uint256 laneId,
+        bytes32 deltaTag,
+        bytes32 summaryHash,
+        uint16 deltaBand
+    ) external onlySheriff whenDeskOpen {
+        if (alertIdUsed[alertId]) revert TNZ_StaleBot();
+        if (deltaBand < TNZ_DELTA_FLOOR) revert TNZ_ConfLow();
+        if (deltaBand > TNZ_DELTA_CEIL) revert TNZ_ConfHigh();
+        TnzWatchLane storage lane = watchLanes[laneId];
+        if (lane.phase != TnzLanePhase.Live) revert TNZ_LaneRetired();
+        alertIdUsed[alertId] = true;
+        alerts[alertId] = TnzAlertCell({
+            laneId: laneId,
+            deltaTag: deltaTag,
+            summaryHash: summaryHash,
+            deltaBand: deltaBand,
+            stampedAt: uint64(block.timestamp)
+        });
+        emit Alerted(alertId, laneId, deltaBand);
+    }
+
+    function fundBotLane() external payable whenDeskOpen {
+        if (msg.value == 0) revert TNZ_ZeroAmt();
+        emit Pulse_0(lineSerial, msg.sender, msg.value);
+        unchecked { lineSerial += 1; }
+    }
+
+    function _sendNative(address to, uint256 amt) internal {
+        (bool ok, ) = payable(to).call{value: amt}("");
+        if (!ok) revert TNZ_TransferFail();
+    }
