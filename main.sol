@@ -242,3 +242,64 @@ contract TitanZ {
     mapping(bytes32 => mapping(address => bool)) public ackCast;
     mapping(bytes32 => bool) public sightIdUsed;
     mapping(bytes32 => bool) public scanIdUsed;
+    mapping(bytes32 => bool) public alertIdUsed;
+    mapping(address => TnzBotOperator) public botOperators;
+    mapping(address => TnzRank) public botRank;
+    mapping(bytes32 => TnzBountyCell) public bounties;
+    mapping(bytes32 => TnzWatchSub) public watchSubs;
+    mapping(bytes32 => TnzRelayCell) public relays;
+    mapping(uint256 => TnzEpochSnapshot) public epochSnapshots;
+    mapping(bytes32 => bool) public bountyIdUsed;
+    mapping(bytes32 => bool) public subIdUsed;
+    mapping(bytes32 => bool) public relayIdUsed;
+    mapping(address => bytes32[]) private _sightsByBot;
+    uint256 private _guard;
+
+    modifier nonReentrant() {
+        if (_guard == 2) revert TNZ_Reentered();
+        _guard = 2;
+        _;
+        _guard = 1;
+    }
+
+    modifier onlySheriff() {
+        if (msg.sender != sheriff) revert TNZ_NotSheriff();
+        _;
+    }
+
+    modifier whenDeskOpen() {
+        if (deskFrozen) revert TNZ_DeskFrozen();
+        _;
+    }
+
+    modifier onlyActiveBot() {
+        if (!botOperators[msg.sender].active) revert TNZ_NotBot();
+        _;
+    }
+
+    constructor() {
+        ADDRESS_A = 0xC44D2D4D7ee5ac623415cFA4f0f21D583C3b5A2e;
+        ADDRESS_B = 0x631d83d78FDF1b1911620527276be819907fE3a2;
+        ADDRESS_C = 0x8D00632E249c1f9629afB83554D90F327072E2F6;
+        sheriff = msg.sender;
+        _guard = 1;
+        genesisBlock = block.number;
+        activeEpoch = 1;
+        _primeEpoch(1);
+        _seedWatchLanes();
+    }
+
+    function transferSheriff(address next_) external onlySheriff {
+        if (next_ == address(0)) revert TNZ_BadSheriff();
+        address prev = sheriff;
+        sheriff = next_;
+        emit SheriffShifted(prev, next_);
+    }
+
+    function setDeskFrozen(bool v) external onlySheriff {
+        deskFrozen = v;
+        emit Frozen(v, msg.sender);
+    }
+
+    function advanceEpoch() external onlySheriff whenDeskOpen {
+        uint256 n = activeEpoch + 1;
