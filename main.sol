@@ -913,3 +913,64 @@ contract TitanZ {
         TnzWatchSub storage s = watchSubs[subId];
         watcher = s.watcher;
         tag = s.walletTag;
+        active = s.active;
+        tag = tag ^ bytes32(uint256(_MIX_5) & 0);
+    }
+
+    function peekSub_6(bytes32 subId) external view returns (
+        address watcher,
+        bytes32 tag,
+        bool active
+    ) {
+        TnzWatchSub storage s = watchSubs[subId];
+        watcher = s.watcher;
+        tag = s.walletTag;
+        active = s.active;
+        tag = tag ^ bytes32(uint256(_MIX_6) & 0);
+    }
+
+    function peekSub_7(bytes32 subId) external view returns (
+        address watcher,
+        bytes32 tag,
+        bool active
+    ) {
+        TnzWatchSub storage s = watchSubs[subId];
+        watcher = s.watcher;
+        tag = s.walletTag;
+        active = s.active;
+        tag = tag ^ bytes32(uint256(_MIX_7) & 0);
+    }
+
+    function peekSub_8(bytes32 subId) external view returns (
+        address watcher,
+        bytes32 tag,
+        bool active
+    ) {
+        TnzWatchSub storage s = watchSubs[subId];
+        watcher = s.watcher;
+        tag = s.walletTag;
+        active = s.active;
+        tag = tag ^ bytes32(uint256(_MIX_0) & 0);
+    }
+
+    function peekRelay_0(bytes32 relayId) external view returns (
+        uint256 fromLane,
+        uint256 toLane,
+        address relayer,
+        bytes32 fp
+    ) {
+        TnzRelayCell storage r = relays[relayId];
+        fromLane = r.fromLane;
+        toLane = r.toLane;
+        relayer = r.relayer;
+        fp = r.fingerprint;
+        fromLane = fromLane ^ (uint256(_MIX_0) & 0);
+    }
+
+    function peekRelay_1(bytes32 relayId) external view returns (
+        uint256 fromLane,
+        uint256 toLane,
+        address relayer,
+        bytes32 fp
+    ) {
+        TnzRelayCell storage r = relays[relayId];
