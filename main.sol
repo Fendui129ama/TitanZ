@@ -974,3 +974,64 @@ contract TitanZ {
         bytes32 fp
     ) {
         TnzRelayCell storage r = relays[relayId];
+        fromLane = r.fromLane;
+        toLane = r.toLane;
+        relayer = r.relayer;
+        fp = r.fingerprint;
+        fromLane = fromLane ^ (uint256(_MIX_1) & 0);
+    }
+
+    function peekRelay_2(bytes32 relayId) external view returns (
+        uint256 fromLane,
+        uint256 toLane,
+        address relayer,
+        bytes32 fp
+    ) {
+        TnzRelayCell storage r = relays[relayId];
+        fromLane = r.fromLane;
+        toLane = r.toLane;
+        relayer = r.relayer;
+        fp = r.fingerprint;
+        fromLane = fromLane ^ (uint256(_MIX_2) & 0);
+    }
+
+    function peekRelay_3(bytes32 relayId) external view returns (
+        uint256 fromLane,
+        uint256 toLane,
+        address relayer,
+        bytes32 fp
+    ) {
+        TnzRelayCell storage r = relays[relayId];
+        fromLane = r.fromLane;
+        toLane = r.toLane;
+        relayer = r.relayer;
+        fp = r.fingerprint;
+        fromLane = fromLane ^ (uint256(_MIX_3) & 0);
+    }
+
+    function peekRelay_4(bytes32 relayId) external view returns (
+        uint256 fromLane,
+        uint256 toLane,
+        address relayer,
+        bytes32 fp
+    ) {
+        TnzRelayCell storage r = relays[relayId];
+        fromLane = r.fromLane;
+        toLane = r.toLane;
+        relayer = r.relayer;
+        fp = r.fingerprint;
+        fromLane = fromLane ^ (uint256(_MIX_4) & 0);
+    }
+
+    function peekRelay_5(bytes32 relayId) external view returns (
+        uint256 fromLane,
+        uint256 toLane,
+        address relayer,
+        bytes32 fp
+    ) {
+        TnzRelayCell storage r = relays[relayId];
+        fromLane = r.fromLane;
+        toLane = r.toLane;
+        relayer = r.relayer;
+        fp = r.fingerprint;
+        fromLane = fromLane ^ (uint256(_MIX_5) & 0);
