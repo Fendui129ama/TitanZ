@@ -303,3 +303,64 @@ contract TitanZ {
 
     function advanceEpoch() external onlySheriff whenDeskOpen {
         uint256 n = activeEpoch + 1;
+        if (n > 30) revert TNZ_BadEpoch();
+        activeEpoch = n;
+        _primeEpoch(n);
+        emit Rolled(n, uint64(block.timestamp), _epochSightWeight());
+    }
+
+    function retireLane(uint256 laneId) external onlySheriff {
+        TnzWatchLane storage lane = watchLanes[laneId];
+        if (lane.phase == TnzLanePhase.Draft) revert TNZ_LaneMissing();
+        lane.phase = TnzLanePhase.Archived;
+    }
+
+    function registerBot(address bot, bytes32 label) external onlySheriff {
+        if (bot == address(0)) revert TNZ_ZeroAddr();
+        if (botOperators[bot].active) revert TNZ_BotExists();
+        botOperators[bot] = TnzBotOperator({
+            active: true,
+            label: label,
+            joinedAt: uint64(block.timestamp),
+            sightTally: 0
+        });
+        emit BotJoined(bot, label);
+    }
+
+    function revokeBot(address bot) external onlySheriff {
+        if (!botOperators[bot].active) revert TNZ_NotBot();
+        botOperators[bot].active = false;
+        emit BotLeft(bot);
+    }
+
+    function withdrawSurplus(uint256 amt, address payable to) external onlySheriff nonReentrant {
+        if (to == address(0)) revert TNZ_ZeroAddr();
+        if (amt == 0 || amt > address(this).balance) revert TNZ_ZeroAmt();
+        _sendNative(to, amt);
+    }
+
+    function logSighting(
+        bytes32 sightId,
+        uint256 laneId,
+        bytes32 walletFingerprint,
+        uint8 privacyTier
+    ) external payable nonReentrant whenDeskOpen onlyActiveBot {
+        if (sightId == bytes32(0)) revert TNZ_DigestVoid();
+        if (sightIdUsed[sightId]) revert TNZ_SightingExists();
+        if (msg.value < TNZ_SIGHT_FEE) revert TNZ_StakeTooSmall();
+        if (privacyTier == 0 || privacyTier > TNZ_PRIVACY_MAX) revert TNZ_TierOutOfRange();
+        TnzWatchLane storage lane = watchLanes[laneId];
+        if (lane.phase != TnzLanePhase.Live) revert TNZ_LaneRetired();
+        if (lane.sightCount >= TNZ_MAX_SIGHTINGS) revert TNZ_CapHit();
+        sightIdUsed[sightId] = true;
+        sightings[sightId] = TnzSighting({
+            laneId: laneId,
+            bot: msg.sender,
+            walletFingerprint: walletFingerprint,
+            privacyTier: privacyTier,
+            upAcks: 0,
+            downAcks: 0,
+            stakeWei: msg.value,
+            loggedAt: uint64(block.timestamp),
+            exists: true
+        });
