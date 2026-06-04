@@ -608,3 +608,64 @@ contract TitanZ {
         bytes32 relayId,
         uint256 fromLane,
         uint256 toLane,
+        bytes32 fingerprint
+    ) external whenDeskOpen onlyActiveBot {
+        if (relayId == bytes32(0)) revert TNZ_DigestVoid();
+        if (relayIdUsed[relayId]) revert TNZ_RelayExists();
+        if (relayCount >= TNZ_MAX_RELAYS) revert TNZ_CapHit();
+        if (fromLane == toLane) revert TNZ_LaneMissing();
+        TnzWatchLane storage src = watchLanes[fromLane];
+        TnzWatchLane storage dst = watchLanes[toLane];
+        if (src.phase != TnzLanePhase.Live || dst.phase != TnzLanePhase.Live) revert TNZ_LaneRetired();
+        relayIdUsed[relayId] = true;
+        relays[relayId] = TnzRelayCell({
+            fromLane: fromLane,
+            toLane: toLane,
+            fingerprint: fingerprint,
+            relayer: msg.sender,
+            relayAt: uint64(block.timestamp)
+        });
+        unchecked { relayCount += 1; }
+        botRep[activeEpoch][msg.sender] += 25;
+        emit Relayed(relayId, fromLane, toLane, msg.sender);
+    }
+
+    function refreshBotRank(address bot) external whenDeskOpen {
+        if (!botOperators[bot].active) revert TNZ_NotBot();
+        uint256 rep = botRep[activeEpoch][bot];
+        TnzRank r = _rankForRep(rep);
+        botRank[bot] = r;
+        emit RankRaised(bot, uint8(r));
+    }
+
+    function sheriffPromoteRank(address bot, TnzRank rank) external onlySheriff {
+        if (!botOperators[bot].active) revert TNZ_NotBot();
+        botRank[bot] = rank;
+        emit RankRaised(bot, uint8(rank));
+    }
+
+    function saveEpochSnapshot(uint256 epochId, bytes32 rootHash) external onlySheriff {
+        if (epochId == 0 || epochId > 30) revert TNZ_BadEpoch();
+        if (epochSnapshots[epochId].exists) revert TNZ_SnapshotSet();
+        uint256 total = 0;
+        for (uint256 i = 1; i <= 27; ++i) {
+            total += watchLanes[i].sightCount;
+        }
+        epochSnapshots[epochId] = TnzEpochSnapshot({
+            rootHash: rootHash,
+            sightTotal: total,
+            stampedAt: uint64(block.timestamp),
+            exists: true
+        });
+        emit SnapshotSaved(epochId, rootHash, total);
+    }
+
+    function titanDigestTriple(bytes32 sightId)
+        external
+        view
+        returns (bytes32 hA, bytes32 hB, bytes32 hC)
+    {
+        TnzSighting storage s = sightings[sightId];
+        if (!s.exists) revert TNZ_SightingMissing();
+        return _tripleMix(s.laneId, activeEpoch, s.bot);
+    }
