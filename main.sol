@@ -120,3 +120,64 @@ contract TitanZ {
         uint32 upAcks;
         uint32 downAcks;
         uint256 stakeWei;
+        uint64 loggedAt;
+        bool exists;
+    }
+
+    struct TnzScanJob {
+        uint256 laneId;
+        address requester;
+        bytes32 walletTag;
+        TnzScanPhase phase;
+        bytes32 resultHash;
+        uint16 confidence;
+        uint64 queuedAt;
+    }
+
+    struct TnzAlertCell {
+        uint256 laneId;
+        bytes32 deltaTag;
+        bytes32 summaryHash;
+        uint16 deltaBand;
+        uint64 stampedAt;
+    }
+
+    struct TnzEpochRail {
+        uint64 startedAt;
+        uint256 sightWeight;
+        uint256 scanWeight;
+        bytes32 mixHA;
+        bytes32 mixHB;
+    }
+
+    struct TnzBotOperator {
+        bool active;
+        bytes32 label;
+        uint64 joinedAt;
+        uint32 sightTally;
+    }
+
+    struct TnzBountyCell {
+        uint256 laneId;
+        bytes32 targetTag;
+        uint256 rewardWei;
+        address poster;
+        address claimer;
+        bool open;
+        bool claimed;
+    }
+
+    struct TnzWatchSub {
+        address watcher;
+        bytes32 walletTag;
+        uint64 subscribedAt;
+        bool active;
+    }
+
+    struct TnzRelayCell {
+        uint256 fromLane;
+        uint256 toLane;
+        bytes32 fingerprint;
+        address relayer;
+        uint64 relayAt;
+    }
