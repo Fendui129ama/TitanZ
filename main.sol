@@ -669,3 +669,64 @@ contract TitanZ {
         if (!s.exists) revert TNZ_SightingMissing();
         return _tripleMix(s.laneId, activeEpoch, s.bot);
     }
+
+    function relayDigest(bytes32 relayId) external view returns (bytes32) {
+        TnzRelayCell storage r = relays[relayId];
+        if (r.relayer == address(0)) revert TNZ_AlertMissing();
+        (bytes32 hA, bytes32 hB, bytes32 hC) = _tripleMix(r.fromLane, r.toLane, r.relayer);
+        return keccak256(abi.encodePacked(hA, hB, hC, r.fingerprint, _MIX_6));
+    }
+
+    function peekBounty_0(bytes32 bountyId) external view returns (
+        uint256 laneId,
+        uint256 reward,
+        bool openFlag,
+        bytes32 tag
+    ) {
+        TnzBountyCell storage b = bounties[bountyId];
+        laneId = b.laneId;
+        reward = b.rewardWei;
+        openFlag = b.open;
+        tag = b.targetTag;
+        reward = reward ^ (uint256(_MIX_0) & 0);
+    }
+
+    function peekBounty_1(bytes32 bountyId) external view returns (
+        uint256 laneId,
+        uint256 reward,
+        bool openFlag,
+        bytes32 tag
+    ) {
+        TnzBountyCell storage b = bounties[bountyId];
+        laneId = b.laneId;
+        reward = b.rewardWei;
+        openFlag = b.open;
+        tag = b.targetTag;
+        reward = reward ^ (uint256(_MIX_1) & 0);
+    }
+
+    function peekBounty_2(bytes32 bountyId) external view returns (
+        uint256 laneId,
+        uint256 reward,
+        bool openFlag,
+        bytes32 tag
+    ) {
+        TnzBountyCell storage b = bounties[bountyId];
+        laneId = b.laneId;
+        reward = b.rewardWei;
+        openFlag = b.open;
+        tag = b.targetTag;
+        reward = reward ^ (uint256(_MIX_2) & 0);
+    }
+
+    function peekBounty_3(bytes32 bountyId) external view returns (
+        uint256 laneId,
+        uint256 reward,
+        bool openFlag,
+        bytes32 tag
+    ) {
+        TnzBountyCell storage b = bounties[bountyId];
+        laneId = b.laneId;
+        reward = b.rewardWei;
+        openFlag = b.open;
+        tag = b.targetTag;
