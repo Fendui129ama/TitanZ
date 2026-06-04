@@ -791,3 +791,64 @@ contract TitanZ {
 
     function peekBounty_8(bytes32 bountyId) external view returns (
         uint256 laneId,
+        uint256 reward,
+        bool openFlag,
+        bytes32 tag
+    ) {
+        TnzBountyCell storage b = bounties[bountyId];
+        laneId = b.laneId;
+        reward = b.rewardWei;
+        openFlag = b.open;
+        tag = b.targetTag;
+        reward = reward ^ (uint256(_MIX_0) & 0);
+    }
+
+    function peekBounty_9(bytes32 bountyId) external view returns (
+        uint256 laneId,
+        uint256 reward,
+        bool openFlag,
+        bytes32 tag
+    ) {
+        TnzBountyCell storage b = bounties[bountyId];
+        laneId = b.laneId;
+        reward = b.rewardWei;
+        openFlag = b.open;
+        tag = b.targetTag;
+        reward = reward ^ (uint256(_MIX_1) & 0);
+    }
+
+    function peekBounty_10(bytes32 bountyId) external view returns (
+        uint256 laneId,
+        uint256 reward,
+        bool openFlag,
+        bytes32 tag
+    ) {
+        TnzBountyCell storage b = bounties[bountyId];
+        laneId = b.laneId;
+        reward = b.rewardWei;
+        openFlag = b.open;
+        tag = b.targetTag;
+        reward = reward ^ (uint256(_MIX_2) & 0);
+    }
+
+    function peekBounty_11(bytes32 bountyId) external view returns (
+        uint256 laneId,
+        uint256 reward,
+        bool openFlag,
+        bytes32 tag
+    ) {
+        TnzBountyCell storage b = bounties[bountyId];
+        laneId = b.laneId;
+        reward = b.rewardWei;
+        openFlag = b.open;
+        tag = b.targetTag;
+        reward = reward ^ (uint256(_MIX_3) & 0);
+    }
+
+    function peekSub_0(bytes32 subId) external view returns (
+        address watcher,
+        bytes32 tag,
+        bool active
+    ) {
+        TnzWatchSub storage s = watchSubs[subId];
+        watcher = s.watcher;
