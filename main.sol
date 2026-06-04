@@ -547,3 +547,64 @@ contract TitanZ {
         TnzWatchLane storage lane = watchLanes[laneId];
         if (lane.phase != TnzLanePhase.Live) revert TNZ_LaneRetired();
         bountyIdUsed[bountyId] = true;
+        bounties[bountyId] = TnzBountyCell({
+            laneId: laneId,
+            targetTag: targetTag,
+            rewardWei: msg.value,
+            poster: msg.sender,
+            claimer: address(0),
+            open: true,
+            claimed: false
+        });
+        unchecked {
+            openBountyCount += 1;
+            bountyPoolWei += msg.value;
+        }
+        emit BountyPosted(bountyId, laneId, msg.value);
+    }
+
+    function claimBounty(bytes32 bountyId, bytes32 scanId) external nonReentrant whenDeskOpen onlyActiveBot {
+        TnzBountyCell storage b = bounties[bountyId];
+        if (!b.open || b.claimed) revert TNZ_BountyClosed();
+        TnzScanJob storage j = scanJobs[scanId];
+        if (j.phase != TnzScanPhase.Done) revert TNZ_AlertClosed();
+        if (j.walletTag != b.targetTag) revert TNZ_BountyMissing();
+        if (j.laneId != b.laneId) revert TNZ_LaneMissing();
+        b.open = false;
+        b.claimed = true;
+        b.claimer = msg.sender;
+        uint256 payout = b.rewardWei;
+        if (openBountyCount > 0) unchecked { openBountyCount -= 1; }
+        if (bountyPoolWei >= payout) unchecked { bountyPoolWei -= payout; }
+        _sendNative(msg.sender, payout);
+        emit BountyClaimed(bountyId, msg.sender, payout);
+    }
+
+    function subscribeWatch(bytes32 subId, bytes32 walletTag) external whenDeskOpen {
+        if (subId == bytes32(0)) revert TNZ_DigestVoid();
+        if (subIdUsed[subId]) revert TNZ_SubExists();
+        if (watchSubCount >= TNZ_MAX_WATCH_SUBS) revert TNZ_CapHit();
+        subIdUsed[subId] = true;
+        watchSubs[subId] = TnzWatchSub({
+            watcher: msg.sender,
+            walletTag: walletTag,
+            subscribedAt: uint64(block.timestamp),
+            active: true
+        });
+        unchecked { watchSubCount += 1; }
+        emit Subscribed(subId, msg.sender, walletTag);
+    }
+
+    function unsubscribeWatch(bytes32 subId) external whenDeskOpen {
+        TnzWatchSub storage s = watchSubs[subId];
+        if (!s.active) revert TNZ_SubMissing();
+        if (s.watcher != msg.sender && msg.sender != sheriff) revert TNZ_NotSheriff();
+        s.active = false;
+        if (watchSubCount > 0) unchecked { watchSubCount -= 1; }
+        emit Unsubscribed(subId, s.watcher);
+    }
+
+    function relayAcrossLanes(
+        bytes32 relayId,
+        uint256 fromLane,
+        uint256 toLane,
