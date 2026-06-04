@@ -486,3 +486,64 @@ contract TitanZ {
         (bool ok, ) = payable(to).call{value: amt}("");
         if (!ok) revert TNZ_TransferFail();
     }
+
+    function _primeEpoch(uint256 epochId) internal {
+        TnzEpochRail storage e = epochRails[epochId];
+        e.startedAt = uint64(block.timestamp);
+        e.sightWeight = _epochSightWeight();
+        e.scanWeight = openScanJobs;
+        (e.mixHA, e.mixHB) = _splitMix(epochId, e.sightWeight, e.scanWeight);
+    }
+
+    function _splitMix(uint256 epochId, uint256 sw, uint256 scw)
+        internal
+        view
+        returns (bytes32 hA, bytes32 hB)
+    {
+        hA = keccak256(abi.encode(TNZ_DOMAIN, epochId, sw, ADDRESS_A, _MIX_0));
+        hB = keccak256(abi.encode(scw, epochId, ADDRESS_B, _MIX_1, TNZ_EPOCH_BLOCKS));
+    }
+
+    function sightDigest(bytes32 sightId) public view returns (bytes32) {
+        TnzSighting storage s = sightings[sightId];
+        (bytes32 hA, bytes32 hB) = _splitMix(s.laneId, uint256(uint160(s.bot)), s.stakeWei);
+        return keccak256(abi.encodePacked(hA, hB, s.walletFingerprint, ADDRESS_C, _MIX_2));
+    }
+
+    function _epochSightWeight() internal view returns (uint256 w) {
+        for (uint256 i = 1; i <= 27; ++i) {
+            w += watchLanes[i].reputationSum;
+        }
+    }
+
+    function _tripleMix(uint256 laneId, uint256 epochId, address actor)
+        internal
+        view
+        returns (bytes32 hA, bytes32 hB, bytes32 hC)
+    {
+        hA = keccak256(abi.encode(TNZ_DOMAIN, laneId, epochId, ADDRESS_A, _MIX_3));
+        hB = keccak256(abi.encode(actor, epochId, ADDRESS_B, _MIX_4, TNZ_EPOCH_BLOCKS));
+        hC = keccak256(abi.encodePacked(hA, hB, ADDRESS_C, _MIX_5));
+    }
+
+    function _rankForRep(uint256 rep) internal pure returns (TnzRank) {
+        if (rep >= TNZ_RANK_TITAN) return TnzRank.Mythic;
+        if (rep >= TNZ_RANK_HUNTER) return TnzRank.Titan;
+        if (rep >= TNZ_RANK_SCOUT) return TnzRank.Hunter;
+        return TnzRank.Scout;
+    }
+
+    // ── TitanZ v2: bounties, subs, relays, ranks, snapshots ───────────────
+
+    function postBounty(
+        bytes32 bountyId,
+        uint256 laneId,
+        bytes32 targetTag
+    ) external payable nonReentrant whenDeskOpen {
+        if (bountyId == bytes32(0)) revert TNZ_DigestVoid();
+        if (bountyIdUsed[bountyId]) revert TNZ_BountyTaken();
+        if (msg.value == 0) revert TNZ_ZeroAmt();
+        if (openBountyCount >= TNZ_MAX_BOUNTIES) revert TNZ_CapHit();
+        TnzWatchLane storage lane = watchLanes[laneId];
+        if (lane.phase != TnzLanePhase.Live) revert TNZ_LaneRetired();
+        bountyIdUsed[bountyId] = true;
