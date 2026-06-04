@@ -1157,3 +1157,64 @@ contract TitanZ {
         emit Opened(7, 0xa29287fbb5117e25299bcd1bb7fb511f365a9a523a0a085c276985c0882b980e, uint8(4));
         watchLanes[8] = TnzWatchLane({
             phase: TnzLanePhase.Live,
+            privacyTier: uint8(5),
+            openedAt: uint64(block.timestamp),
+            sightCount: 0,
+            scanCount: 0,
+            reputationSum: 191,
+            laneTag: 0xcda94532c86431835bcb3953efc61163810c47be421e280890f677d1dcb69406
+        });
+        emit Opened(8, 0xcda94532c86431835bcb3953efc61163810c47be421e280890f677d1dcb69406, uint8(5));
+        watchLanes[9] = TnzWatchLane({
+            phase: TnzLanePhase.Live,
+            privacyTier: uint8(2),
+            openedAt: uint64(block.timestamp),
+            sightCount: 0,
+            scanCount: 0,
+            reputationSum: 214,
+            laneTag: 0x0c4af312383d0dff1956b262fbb2d10ae7da2ec2be35142a4500d90f93da7c24
+        });
+        emit Opened(9, 0x0c4af312383d0dff1956b262fbb2d10ae7da2ec2be35142a4500d90f93da7c24, uint8(2));
+        watchLanes[10] = TnzWatchLane({
+            phase: TnzLanePhase.Live,
+            privacyTier: uint8(3),
+            openedAt: uint64(block.timestamp),
+            sightCount: 0,
+            scanCount: 0,
+            reputationSum: 237,
+            laneTag: 0x66bb1e82dd1d27a83e3f54d49c9488b3b7fcb2f003c02a2035b201920b8df960
+        });
+        emit Opened(10, 0x66bb1e82dd1d27a83e3f54d49c9488b3b7fcb2f003c02a2035b201920b8df960, uint8(3));
+        watchLanes[11] = TnzWatchLane({
+            phase: TnzLanePhase.Live,
+            privacyTier: uint8(4),
+            openedAt: uint64(block.timestamp),
+            sightCount: 0,
+            scanCount: 0,
+            reputationSum: 260,
+            laneTag: 0xbf50fb2a4167f3a6844c79e891069c979aaf6678fd2a9d56a4aa6f9d516ce39f
+        });
+        emit Opened(11, 0xbf50fb2a4167f3a6844c79e891069c979aaf6678fd2a9d56a4aa6f9d516ce39f, uint8(4));
+        watchLanes[12] = TnzWatchLane({
+            phase: TnzLanePhase.Live,
+            privacyTier: uint8(5),
+            openedAt: uint64(block.timestamp),
+            sightCount: 0,
+            scanCount: 0,
+            reputationSum: 283,
+            laneTag: 0xe698b2891e6c884ef4d28498a4177ecc8852ec84dd6ea026d919ac18a4ecbfad
+        });
+        emit Opened(12, 0xe698b2891e6c884ef4d28498a4177ecc8852ec84dd6ea026d919ac18a4ecbfad, uint8(5));
+        watchLanes[13] = TnzWatchLane({
+            phase: TnzLanePhase.Live,
+            privacyTier: uint8(6),
+            openedAt: uint64(block.timestamp),
+            sightCount: 0,
+            scanCount: 0,
+            reputationSum: 306,
+            laneTag: 0xd17d3e8c1c64b52340e9fac6560c6f0d6cf855463dad9d704d6685e0e72dd215
+        });
+        emit Opened(13, 0xd17d3e8c1c64b52340e9fac6560c6f0d6cf855463dad9d704d6685e0e72dd215, uint8(6));
+        watchLanes[14] = TnzWatchLane({
+            phase: TnzLanePhase.Live,
+            privacyTier: uint8(3),
