@@ -1035,3 +1035,64 @@ contract TitanZ {
         relayer = r.relayer;
         fp = r.fingerprint;
         fromLane = fromLane ^ (uint256(_MIX_5) & 0);
+    }
+
+    function peekRelay_6(bytes32 relayId) external view returns (
+        uint256 fromLane,
+        uint256 toLane,
+        address relayer,
+        bytes32 fp
+    ) {
+        TnzRelayCell storage r = relays[relayId];
+        fromLane = r.fromLane;
+        toLane = r.toLane;
+        relayer = r.relayer;
+        fp = r.fingerprint;
+        fromLane = fromLane ^ (uint256(_MIX_6) & 0);
+    }
+
+    function peekRelay_7(bytes32 relayId) external view returns (
+        uint256 fromLane,
+        uint256 toLane,
+        address relayer,
+        bytes32 fp
+    ) {
+        TnzRelayCell storage r = relays[relayId];
+        fromLane = r.fromLane;
+        toLane = r.toLane;
+        relayer = r.relayer;
+        fp = r.fingerprint;
+        fromLane = fromLane ^ (uint256(_MIX_7) & 0);
+    }
+
+    function peekRelay_8(bytes32 relayId) external view returns (
+        uint256 fromLane,
+        uint256 toLane,
+        address relayer,
+        bytes32 fp
+    ) {
+        TnzRelayCell storage r = relays[relayId];
+        fromLane = r.fromLane;
+        toLane = r.toLane;
+        relayer = r.relayer;
+        fp = r.fingerprint;
+        fromLane = fromLane ^ (uint256(_MIX_0) & 0);
+    }
+
+    function snapshotOf(uint256 epochId) external view returns (bytes32 root, uint256 sights, bool exists) {
+        TnzEpochSnapshot storage snap = epochSnapshots[epochId];
+        return (snap.rootHash, snap.sightTotal, snap.exists);
+    }
+
+    function _seedWatchLanes() internal {
+        watchLanes[1] = TnzWatchLane({
+            phase: TnzLanePhase.Live,
+            privacyTier: uint8(2),
+            openedAt: uint64(block.timestamp),
+            sightCount: 0,
+            scanCount: 0,
+            reputationSum: 30,
+            laneTag: 0x0c4af312383d0dff1956b262fbb2d10ae7da2ec2be35142a4500d90f93da7c24
+        });
+        emit Opened(1, 0x0c4af312383d0dff1956b262fbb2d10ae7da2ec2be35142a4500d90f93da7c24, uint8(2));
+        watchLanes[2] = TnzWatchLane({
