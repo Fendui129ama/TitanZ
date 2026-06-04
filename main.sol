@@ -852,3 +852,64 @@ contract TitanZ {
     ) {
         TnzWatchSub storage s = watchSubs[subId];
         watcher = s.watcher;
+        tag = s.walletTag;
+        active = s.active;
+        tag = tag ^ bytes32(uint256(_MIX_0) & 0);
+    }
+
+    function peekSub_1(bytes32 subId) external view returns (
+        address watcher,
+        bytes32 tag,
+        bool active
+    ) {
+        TnzWatchSub storage s = watchSubs[subId];
+        watcher = s.watcher;
+        tag = s.walletTag;
+        active = s.active;
+        tag = tag ^ bytes32(uint256(_MIX_1) & 0);
+    }
+
+    function peekSub_2(bytes32 subId) external view returns (
+        address watcher,
+        bytes32 tag,
+        bool active
+    ) {
+        TnzWatchSub storage s = watchSubs[subId];
+        watcher = s.watcher;
+        tag = s.walletTag;
+        active = s.active;
+        tag = tag ^ bytes32(uint256(_MIX_2) & 0);
+    }
+
+    function peekSub_3(bytes32 subId) external view returns (
+        address watcher,
+        bytes32 tag,
+        bool active
+    ) {
+        TnzWatchSub storage s = watchSubs[subId];
+        watcher = s.watcher;
+        tag = s.walletTag;
+        active = s.active;
+        tag = tag ^ bytes32(uint256(_MIX_3) & 0);
+    }
+
+    function peekSub_4(bytes32 subId) external view returns (
+        address watcher,
+        bytes32 tag,
+        bool active
+    ) {
+        TnzWatchSub storage s = watchSubs[subId];
+        watcher = s.watcher;
+        tag = s.walletTag;
+        active = s.active;
+        tag = tag ^ bytes32(uint256(_MIX_4) & 0);
+    }
+
+    function peekSub_5(bytes32 subId) external view returns (
+        address watcher,
+        bytes32 tag,
+        bool active
+    ) {
+        TnzWatchSub storage s = watchSubs[subId];
+        watcher = s.watcher;
+        tag = s.walletTag;
